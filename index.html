@@ -1,0 +1,2906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Concrete Mud Map App</title>
+
+  <style>
+    :root {
+      --dark: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f3f4f6;
+      --white: #ffffff;
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+      --blue-bg: #dbeafe;
+      --blue-text: #1d4ed8;
+      --red-bg: #fee2e2;
+      --red-text: #991b1b;
+      --orange-bg: #ffedd5;
+      --orange-text: #9a3412;
+      --yellow: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--dark);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    button, input, select {
+      font: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      background: white;
+      color: var(--dark);
+      min-height: 46px;
+      padding: 11px 12px;
+    }
+
+    input, select {
+      width: 100%;
+    }
+
+    button {
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .green {
+      background: var(--green-bg);
+      color: var(--green-text);
+      border-color: #86efac;
+    }
+
+    .blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      border-color: #93c5fd;
+    }
+
+    .red {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border-color: #fecaca;
+    }
+
+    .orange {
+      background: var(--orange-bg);
+      color: var(--orange-text);
+      border-color: #fdba74;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--dark);
+      color: white;
+      padding: 13px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.15;
+    }
+
+    .topbar .sub {
+      margin-top: 3px;
+      color: #d1d5db;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .topbar button {
+      min-height: 38px;
+      padding: 8px 11px;
+      border-radius: 11px;
+      white-space: nowrap;
+    }
+
+    .page {
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .pad {
+      padding: 14px;
+    }
+
+    .hero {
+      padding: 18px 14px;
+    }
+
+    .hero h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .big-action {
+      min-height: 58px;
+      font-size: 17px;
+      width: 100%;
+      border-radius: 18px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .small-text {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .job-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .job-card {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 18px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .job-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .job-title {
+      font-weight: 900;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .job-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    .job-count {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .job-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .job-actions.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 22px 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #374151;
+    }
+
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 18px;
+      padding: 13px;
+      background: #f8fafc;
+      display: grid;
+      gap: 9px;
+    }
+
+    .preview-box {
+      display: none;
+      background: #e5e7eb;
+      border-radius: 16px;
+      overflow: auto;
+      max-height: 430px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .preview-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: white;
+    }
+
+    .pdf-controls {
+      display: none;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pdf-controls button {
+      min-height: 40px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .pdf-controls span {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .notice {
+      display: none;
+      padding: 10px;
+      border-radius: 14px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .work-layout {
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .work-toolbar {
+      position: sticky;
+      top: 66px;
+      z-index: 90;
+      background: rgba(243,244,246,0.97);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .tool {
+      min-height: 54px;
+      border: 2px solid #d1d5db;
+      font-size: 15px;
+    }
+
+    .tool.active {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .mini-actions button {
+      min-height: 40px;
+      padding: 8px 6px;
+      font-size: 12px;
+      border-radius: 11px;
+    }
+
+    .quick-mpa,
+    .legend-box {
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+    }
+
+    .toolbar-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #374151;
+      margin-bottom: 7px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .mpa-pill {
+      min-height: 38px;
+      padding: 7px 6px;
+      font-size: 12px;
+      border-radius: 12px;
+      font-weight: 900;
+      border-width: 2px;
+    }
+
+    .mpa-pill.active {
+      outline: 3px solid #111827;
+      outline-offset: -3px;
+    }
+
+    .mini-actions {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .mini-actions button.active {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .legend-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .legend-item {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #374151;
+      text-align: center;
+    }
+
+    .legend-swatch {
+      width: 28px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.3px solid rgba(17,24,39,0.4);
+    }
+
+    #drawOverlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    #drawPreviewPath {
+      fill: rgba(52, 211, 153, 0.14);
+      stroke: rgba(16, 185, 129, 0.95);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .marker svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .marker.freeform-marker {
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .marker-label-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .notes-field textarea {
+      width: 100%;
+      min-height: 76px;
+      resize: vertical;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .filter-row {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .filter-row button {
+      min-height: 44px;
+      padding: 8px 12px;
+    }
+
+    .map-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .map-head strong {
+      font-size: 15px;
+    }
+
+    .map-head span {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .map-scroll {
+      background: #d1d5db;
+      padding: 10px;
+      overflow: auto;
+      min-height: 380px;
+      max-height: 64vh;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+    }
+
+    #mapStage {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      transform-origin: top left;
+    }
+
+    #mapCanvas {
+      position: relative;
+      width: 100%;
+      max-width: none;
+      min-width: 100%;
+      min-height: 380px;
+      margin: 0;
+      background: white;
+      border: 1px solid #9ca3af;
+      overflow: hidden;
+      touch-action: pan-x pan-y;
+      transform-origin: top left;
+    }
+
+    #mapImg {
+      display: none;
+      width: 100%;
+      height: auto;
+      vertical-align: top;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .blank-plan {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.35;
+      font-weight: 900;
+      background:
+        linear-gradient(#f9fafb 24px, transparent 24px),
+        linear-gradient(90deg, #f9fafb 24px, transparent 24px);
+      background-size: 25px 25px;
+    }
+
+    .marker {
+      position: absolute;
+      transform-origin: center center;
+      border: 1.3px solid rgba(17, 24, 39, 0.7);
+      background-color: rgba(255,255,255,0.14);
+      background-image: none;
+      background-size: auto;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 900;
+      overflow: hidden;
+      padding: 2px;
+      user-select: none;
+      cursor: grab;
+      z-index: 10;
+      touch-action: none;
+    }
+
+    .marker.selected {
+      outline: 3px solid var(--yellow);
+      z-index: 30;
+    }
+
+    .shape-slab {
+      border-radius: 10px;
+    }
+
+    .shape-wall {
+      border-radius: 7px;
+    }
+
+    .shape-column {
+      border-radius: 9px;
+    }
+
+    .marker-inner {
+      width: 100%;
+      line-height: 1.05;
+      pointer-events: none;
+    }
+
+    .marker-order {
+      font-size: 16px;
+    }
+
+    .marker-truck {
+      font-size: 12px;
+      margin-top: 1px;
+    }
+
+    .marker-mpa {
+      font-size: 10px;
+      color: #374151;
+      margin-top: 1px;
+    }
+
+    .register-head {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .register-head h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .register-head .meta {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .truck-list {
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+      background: #f9fafb;
+    }
+
+    .truck-card {
+      background: white;
+      border: 1.5px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+    }
+
+    .truck-card.selected {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px #fef3c7;
+    }
+
+    .truck-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .truck-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--dark);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      flex: 0 0 38px;
+    }
+
+    .truck-type {
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .truck-status {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .card-actions button {
+      min-height: 38px;
+      padding: 7px 9px;
+      font-size: 12px;
+      border-radius: 11px;
+    }
+
+    .truck-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .truck-fields .full {
+      grid-column: 1 / -1;
+    }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .color-row input[type="color"] {
+      min-height: 44px;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      background: white;
+    }
+
+    .color-row button {
+      min-height: 44px;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    .left-btn {
+      grid-column: 1 / -1;
+      min-height: 52px;
+      font-size: 16px;
+    }
+
+    .export-grid {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: #f9fafb;
+    }
+
+    .export-grid button {
+      min-height: 48px;
+    }
+
+    .export-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toast {
+      display: none;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 999;
+      background: var(--dark);
+      color: white;
+      padding: 13px 14px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 900;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    @media (min-width: 980px) {
+      .work-layout {
+        grid-template-columns: minmax(640px, 1fr) 430px;
+        align-items: start;
+      }
+
+      .work-toolbar {
+        grid-column: 1 / -1;
+      }
+
+      .map-scroll {
+        max-height: calc(100vh - 240px);
+      }
+
+      .register-card {
+        max-height: calc(100vh - 140px);
+        overflow: auto;
+      }
+
+      .home-grid {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .topbar,
+      .work-toolbar,
+      .register-card {
+        display: none !important;
+      }
+
+      .work-layout {
+        display: block;
+        padding: 0;
+      }
+
+      .card {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .map-head {
+        display: none;
+      }
+
+      .map-scroll {
+        overflow: visible;
+        max-height: none;
+        min-height: 0;
+        padding: 0;
+        background: white;
+      }
+
+      #mapCanvas {
+        border: none;
+        max-width: none;
+        width: 100%;
+        min-height: 0;
+      }
+
+      .marker {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section id="homeScreen" class="screen active">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1>Concrete Mud Maps</h1>
+          <div class="sub">Saved jobs stay on this browser/device.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page home-grid">
+      <div class="card hero">
+        <h2>Start a mud map</h2>
+        <p>Create a job, upload the drawing, tap truck locations, and export the map/register.</p>
+        <div style="height: 12px"></div>
+        <button class="primary big-action" onclick="startNewJob()">+ New Mud Map</button>
+        <div style="height: 8px"></div>
+        <button class="blue big-action" onclick="document.getElementById('backupInput').click()">Import Backup</button>
+        <input id="backupInput" type="file" accept="application/json" style="display:none" />
+        <div class="small-text" style="margin-top: 10px;">
+          For the easiest Safari link, host this HTML as a website. The app itself works as one single file.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="pad">
+          <div class="section-title">
+            <h2>Saved Mud Maps</h2>
+            <button onclick="renderHome()" class="blue">Refresh</button>
+          </div>
+          <div id="jobList" class="job-list">
+            <div class="empty-state">Loading saved mud maps...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="newScreen" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1>New Mud Map</h1>
+          <div class="sub">Upload a PDF drawing or image before starting.</div>
+        </div>
+        <button onclick="goHome()">Home</button>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="card">
+        <div class="pad">
+          <div class="form-grid">
+            <div class="field">
+              <label>Job Name</label>
+              <input id="newName" placeholder="e.g. B2 Pour 3 Mud Map" />
+            </div>
+
+            <div class="field">
+              <label>Project</label>
+              <input id="newProject" placeholder="Auburn Village Stage 2" />
+            </div>
+
+            <div class="two">
+              <div class="field">
+                <label>Date</label>
+                <input id="newDate" type="date" />
+              </div>
+              <div class="field">
+                <label>Area / Pour</label>
+                <input id="newArea" placeholder="B2 Pour 3" />
+              </div>
+            </div>
+
+            <div class="two">
+              <div class="field">
+                <label>Default MPa</label>
+                <select id="newMpa">
+                  <option value="">None</option>
+                  <option value="20">20 MPa</option>
+                  <option value="25">25 MPa</option>
+                  <option value="32">32 MPa</option>
+                  <option value="40">40 MPa</option>
+                  <option value="50">50 MPa</option>
+                  <option value="65">65 MPa</option>
+                  <option value="80">80 MPa</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Supplier</label>
+                <input id="newSupplier" placeholder="Supplier" />
+              </div>
+            </div>
+
+            <div class="upload-box">
+              <div class="field">
+                <label>PDF Drawing or Image</label>
+                <input id="newFile" type="file" accept="application/pdf,image/*,.pdf" />
+              </div>
+
+              <div id="pdfControls" class="pdf-controls">
+                <button onclick="pdfPrev()">Previous</button>
+                <span id="pdfText">Page 1 / 1</span>
+                <button onclick="pdfNext()">Next</button>
+              </div>
+
+              <div id="newNotice" class="notice"></div>
+
+              <div id="previewBox" class="preview-box">
+                <img id="previewImg" alt="Drawing preview" />
+              </div>
+
+              <div class="small-text">
+                PDF support needs internet the first time because it loads the PDF renderer. Images work offline.
+              </div>
+            </div>
+
+            <button id="createBtn" class="primary big-action" onclick="createJob()">Create Mud Map</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="workScreen" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 id="workTitle">Mud Map</h1>
+          <div id="workSub" class="sub"></div>
+        </div>
+        <button onclick="goHome()">Home</button>
+      </div>
+    </div>
+
+    <div class="work-layout">
+      <section class="work-toolbar">
+        <div class="tool-grid">
+          <button id="tool-slab" class="tool active" onclick="setTool('slab')">⬛ Slab</button>
+          <button id="tool-wall" class="tool" onclick="setTool('wall')">▭ Wall</button>
+          <button id="tool-column" class="tool" onclick="setTool('column')">■ Column</button>
+        </div>
+        <div class="mini-actions">
+          <button id="undoBtn" onclick="undoAction()">Undo</button>
+          <button id="redoBtn" onclick="redoAction()">Redo</button>
+          <button onclick="duplicateSelectedMarker()">Copy</button>
+          <button id="snapBtn" onclick="toggleSnapGrid()">Snap Off</button>
+          <button class="orange" onclick="rotateSelected()">Rotate</button>
+          <button onclick="resizeSelected(1.15)">Bigger</button>
+          <button onclick="resizeSelected(0.85)">Smaller</button>
+          <button onclick="deleteSelectedMarker()" class="red">Delete</button>
+        </div>
+        <div class="quick-mpa">
+          <div class="toolbar-label">Quick MPa</div>
+          <div class="preset-grid">
+            <button class="mpa-pill" data-mpa-btn="" onclick="applyMpaPreset('')">None</button>
+            <button class="mpa-pill" data-mpa-btn="20" onclick="applyMpaPreset('20')" style="background:#86efac;">20</button>
+            <button class="mpa-pill" data-mpa-btn="25" onclick="applyMpaPreset('25')" style="background:#4ade80;">25</button>
+            <button class="mpa-pill" data-mpa-btn="32" onclick="applyMpaPreset('32')" style="background:#fde047;">32</button>
+            <button class="mpa-pill" data-mpa-btn="40" onclick="applyMpaPreset('40')" style="background:#60a5fa;">40</button>
+            <button class="mpa-pill" data-mpa-btn="50" onclick="applyMpaPreset('50')" style="background:#fb923c;">50</button>
+            <button class="mpa-pill" data-mpa-btn="65" onclick="applyMpaPreset('65')" style="background:#f472b6;">65</button>
+            <button class="mpa-pill" data-mpa-btn="80" onclick="applyMpaPreset('80')" style="background:#a78bfa;">80</button>
+          </div>
+          <div class="small-text" id="defaultMpaText" style="margin-top:8px;">Default MPa: None</div>
+        </div>
+        <div class="legend-box">
+          <div class="toolbar-label">MPa Colour Legend</div>
+          <div class="legend-row">
+            <div class="legend-item"><div class="legend-swatch" style="background:#86efac;"></div><div>20</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#4ade80;"></div><div>25</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#fde047;"></div><div>32</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#60a5fa;"></div><div>40</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#fb923c;"></div><div>50</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#f472b6;"></div><div>65</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#a78bfa;"></div><div>80</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#e5e7eb;"></div><div>None</div></div>
+          </div>
+          <div class="filter-row">
+            <div class="field" style="margin:0;">
+              <label>Filter by MPa</label>
+              <select id="filterMpaSelect" onchange="setMpaFilter(this.value)">
+                <option value="">All MPa</option>
+                <option value="20">20 MPa</option>
+                <option value="25">25 MPa</option>
+                <option value="32">32 MPa</option>
+                <option value="40">40 MPa</option>
+                <option value="50">50 MPa</option>
+                <option value="65">65 MPa</option>
+                <option value="80">80 MPa</option>
+                <option value="none">No MPa</option>
+              </select>
+            </div>
+            <button onclick="setMpaFilter('')">Clear</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="map-head">
+          <strong>Tap drawing to add truck</strong>
+          <span id="truckCount">0 trucks</span>
+        </div>
+        <div id="mapScroll" class="map-scroll">
+          <div id="mapStage">
+            <div id="mapCanvas">
+            <img id="mapImg" alt="Mud map drawing" />
+            <div id="blankPlan" class="blank-plan">No drawing loaded.</div>
+            <svg id="drawOverlay" viewBox="0 0 100 100" preserveAspectRatio="none"><path id="drawPreviewPath" d="" /></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card register-card">
+        <div class="register-head">
+          <div>
+            <h2>Truck Register</h2>
+            <div class="meta">Tap = Time In. LEFT = Time Out. Both editable.</div>
+          </div>
+          <button class="blue" onclick="saveCurrentJob(true)">Save</button>
+        </div>
+
+        <div id="truckCards" class="truck-list"></div>
+
+        <div class="export-grid">
+          <button class="green" onclick="exportCSV()">Export Excel / CSV</button>
+          <button class="blue" onclick="exportMarkedImage()">Export Marked Map Image</button>
+          <button class="primary" onclick="window.print()">Print / Save Map as PDF</button>
+          <div class="export-two">
+            <button onclick="openPrintableTable()">Printable Table</button>
+            <button onclick="exportBackup()">Export Backup</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const DB_NAME = "ConcreteMudMapAppDB";
+    const DB_VERSION = 1;
+    const STORE = "jobs";
+
+    const SHAPES = {
+      slab: { name: "Slab", w: 210, h: 150, rotate: 0 },
+      wall: { name: "Wall", w: 34, h: 125, rotate: 0 },
+      column: { name: "Column", w: 34, h: 48, rotate: 0 }
+    };
+
+    let db = null;
+    let jobs = [];
+    let currentJob = null;
+    let activeTool = "slab";
+    let selectedMarkerId = null;
+    let dragState = null;
+    let historyStack = [];
+    let redoStack = [];
+    let snapToGrid = false;
+    let currentFilterMpa = "";
+    let freeformDrawState = null;
+    let suppressNextCanvasClick = false;
+
+    let draftImageData = "";
+    let draftImageWidth = 1200;
+    let draftImageHeight = 800;
+    let draftSourceType = "";
+    let draftPdfDoc = null;
+    let draftPdfPage = 1;
+    let draftPdfTotal = 0;
+
+    const homeScreen = document.getElementById("homeScreen");
+    const newScreen = document.getElementById("newScreen");
+    const workScreen = document.getElementById("workScreen");
+
+    const mapScroll = document.getElementById("mapScroll");
+    const mapStage = document.getElementById("mapStage");
+    const mapCanvas = document.getElementById("mapCanvas");
+    const mapImg = document.getElementById("mapImg");
+    const blankPlan = document.getElementById("blankPlan");
+    const drawOverlay = document.getElementById("drawOverlay");
+    const drawPreviewPath = document.getElementById("drawPreviewPath");
+
+    let mapZoom = 1;
+    let pinchState = null;
+
+    function getTypeBaseColor(type) {
+      return ({ slab: "#34d399", wall: "#facc15", column: "#f472b6" })[type] || "#60a5fa";
+    }
+
+    function getMpaColor(mpa, type) {
+      const colors = {
+        "20": "#86efac",
+        "25": "#4ade80",
+        "32": "#fde047",
+        "40": "#60a5fa",
+        "50": "#fb923c",
+        "65": "#f472b6",
+        "80": "#a78bfa"
+      };
+      return colors[String(mpa || "")] || getTypeBaseColor(type);
+    }
+
+    function getMarkerColor(marker) {
+      return marker.color || getMpaColor(marker.mpa, marker.type);
+    }
+
+    function normalizeHex(hex) {
+      const raw = String(hex || "").trim();
+      if (!raw) return "#60a5fa";
+      if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw;
+      if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
+        return "#" + raw.slice(1).split("").map(c => c + c).join("");
+      }
+      return "#60a5fa";
+    }
+
+    function hexToRgba(hex, alpha) {
+      const safe = normalizeHex(hex);
+      const value = safe.slice(1);
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function getTextureStyle(type, color) {
+      const tone = hexToRgba(color, 0.32);
+      if (type === "wall") {
+        return {
+          image: `repeating-linear-gradient(0deg, ${tone} 0 2px, transparent 2px 8px)`,
+          size: "auto"
+        };
+      }
+      if (type === "column") {
+        return {
+          image: `radial-gradient(circle at 4px 4px, ${tone} 0 1.4px, transparent 1.6px)`,
+          size: "10px 10px"
+        };
+      }
+      return {
+        image: `repeating-linear-gradient(135deg, ${tone} 0 2px, transparent 2px 10px)`,
+        size: "auto"
+      };
+    }
+
+    function applyZoom(keepCenter = false, focalClient = null, previousZoom = null) {
+      const baseWidth = parseFloat(mapCanvas.dataset.baseWidth || mapCanvas.getBoundingClientRect().width || 300);
+      const baseHeight = parseFloat(mapCanvas.dataset.baseHeight || mapCanvas.getBoundingClientRect().height || 380);
+
+      let contentX = null;
+      let contentY = null;
+      let midX = 0;
+      let midY = 0;
+      const oldZoom = previousZoom || mapZoom || 1;
+
+      if (keepCenter && focalClient) {
+        const rect = mapScroll.getBoundingClientRect();
+        midX = focalClient.x - rect.left;
+        midY = focalClient.y - rect.top;
+        contentX = (mapScroll.scrollLeft + midX) / Math.max(oldZoom, 0.01);
+        contentY = (mapScroll.scrollTop + midY) / Math.max(oldZoom, 0.01);
+      }
+
+      mapCanvas.style.transform = `scale(${mapZoom})`;
+      mapStage.style.width = Math.max(baseWidth * mapZoom, mapScroll.clientWidth - 20) + "px";
+      mapStage.style.height = Math.max(baseHeight * mapZoom, 380) + "px";
+
+      if (keepCenter && focalClient && contentX !== null) {
+        mapScroll.scrollLeft = contentX * mapZoom - midX;
+        mapScroll.scrollTop = contentY * mapZoom - midY;
+      }
+    }
+
+    function applyCanvasDisplaySize(job) {
+      if (!job || !job.imageData) {
+        mapCanvas.style.width = "100%";
+        mapCanvas.style.minWidth = "100%";
+        mapImg.style.width = "100%";
+        mapCanvas.dataset.baseWidth = String(mapScroll.clientWidth || 390);
+        mapCanvas.dataset.baseHeight = "380";
+        applyZoom(false);
+        return;
+      }
+
+      const baseWidth = Number(job.imageWidth) || 1200;
+      const baseHeight = Number(job.imageHeight) || 800;
+      const minPhoneWidth = Math.max(window.innerWidth - 24, 420);
+      const sourceBoost = job.sourceType === "pdf" ? 1.0 : 0.85;
+      const displayWidth = Math.max(minPhoneWidth, Math.min(2400, Math.round(baseWidth * sourceBoost)));
+      const displayHeight = Math.max(380, Math.round(baseHeight * (displayWidth / baseWidth)));
+
+      mapCanvas.style.width = displayWidth + "px";
+      mapCanvas.style.minWidth = displayWidth + "px";
+      mapImg.style.width = displayWidth + "px";
+      mapCanvas.dataset.baseWidth = String(displayWidth);
+      mapCanvas.dataset.baseHeight = String(displayHeight);
+      mapZoom = job.zoom || 1;
+      applyZoom(false);
+    }
+
+    function todayISO() {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function nowHHMM() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function uid() {
+      return "job_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+    }
+
+    function showScreen(name) {
+      homeScreen.classList.toggle("active", name === "home");
+      newScreen.classList.toggle("active", name === "new");
+      workScreen.classList.toggle("active", name === "work");
+      window.scrollTo(0, 0);
+    }
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+    }
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+        req.onupgradeneeded = event => {
+          const database = event.target.result;
+          if (!database.objectStoreNames.contains(STORE)) {
+            database.createObjectStore(STORE, { keyPath: "id" });
+          }
+        };
+
+        req.onsuccess = event => {
+          db = event.target.result;
+          resolve();
+        };
+
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbPut(job) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).put(job);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function dbGetAll() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readonly");
+        const req = tx.objectStore(STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbGet(id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readonly");
+        const req = tx.objectStore(STORE).get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbDelete(id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function renderHome() {
+      try {
+        jobs = await dbGetAll();
+        jobs.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+      } catch (error) {
+        console.error(error);
+        jobs = [];
+        toast("Could not load saved maps");
+      }
+
+      const list = document.getElementById("jobList");
+
+      if (!jobs.length) {
+        list.innerHTML = `<div class="empty-state">No saved mud maps yet.<br>Create your first one.</div>`;
+        return;
+      }
+
+      list.innerHTML = jobs.map(job => {
+        const count = (job.markers || []).length;
+        const updated = job.updatedAt ? new Date(job.updatedAt).toLocaleString() : "";
+        return `
+          <div class="job-card">
+            <div class="job-top">
+              <div>
+                <div class="job-title">${escapeHtml(job.name || "Untitled Mud Map")}</div>
+                <div class="job-meta">
+                  ${escapeHtml(job.project || "")}${job.project && job.area ? " · " : ""}${escapeHtml(job.area || "")}<br>
+                  ${escapeHtml(job.date || "")}${updated ? " · Saved " + escapeHtml(updated) : ""}
+                </div>
+              </div>
+              <div class="job-count">${count} truck${count === 1 ? "" : "s"}</div>
+            </div>
+            <div class="job-actions three">
+              <button class="primary" onclick="openJob('${job.id}')">Open</button>
+              <button class="blue" onclick="duplicateJob('${job.id}')">Copy</button>
+              <button class="red" onclick="removeJob('${job.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function goHome() {
+      currentJob = null;
+      selectedMarkerId = null;
+      showScreen("home");
+      renderHome();
+    }
+
+    function startNewJob() {
+      draftImageData = "";
+      draftImageWidth = 1200;
+      draftImageHeight = 800;
+      draftSourceType = "";
+      draftPdfDoc = null;
+      draftPdfPage = 1;
+      draftPdfTotal = 0;
+
+      document.getElementById("newName").value = "";
+      document.getElementById("newProject").value = "";
+      document.getElementById("newDate").value = todayISO();
+      document.getElementById("newArea").value = "";
+      document.getElementById("newMpa").value = "";
+      document.getElementById("newSupplier").value = "";
+      document.getElementById("newFile").value = "";
+
+      document.getElementById("previewBox").style.display = "none";
+      document.getElementById("previewImg").removeAttribute("src");
+      document.getElementById("pdfControls").style.display = "none";
+      hideNotice();
+
+      showScreen("new");
+    }
+
+    async function createJob() {
+      const name = val("newName") || val("newArea") || "Concrete Mud Map";
+
+      const job = {
+        id: uid(),
+        name,
+        project: val("newProject"),
+        date: val("newDate") || todayISO(),
+        area: val("newArea"),
+        defaultMpa: val("newMpa"),
+        supplier: val("newSupplier"),
+        sourceType: draftSourceType,
+        pdfPage: draftPdfPage,
+        pdfTotal: draftPdfTotal,
+        imageData: draftImageData,
+        imageWidth: draftImageWidth,
+        imageHeight: draftImageHeight,
+        markers: [],
+        nextTruckId: 1,
+        activeTool: "slab",
+        snapToGrid: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        await dbPut(job);
+        await openJob(job.id);
+        toast("Mud map created");
+      } catch (error) {
+        console.error(error);
+        toast("Could not save job. Try a smaller drawing.");
+      }
+    }
+
+    document.getElementById("newFile").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+      if (isPdf) await loadDraftPDF(file);
+      else loadDraftImage(file);
+    });
+
+    function loadDraftImage(file) {
+      hideNotice();
+      document.getElementById("pdfControls").style.display = "none";
+      draftPdfDoc = null;
+      draftPdfPage = 1;
+      draftPdfTotal = 0;
+      draftSourceType = "image";
+
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        const img = new Image();
+
+        img.onload = () => {
+          draftImageData = e.target.result;
+          draftImageWidth = img.naturalWidth || img.width;
+          draftImageHeight = img.naturalHeight || img.height;
+
+          showPreview(draftImageData);
+          showNotice("Image loaded. Press Create Mud Map.", true);
+        };
+
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    async function loadDraftPDF(file) {
+      showNotice("Loading PDF renderer and rendering page 1...");
+      draftSourceType = "pdf";
+
+      try {
+        await ensurePdfJs();
+
+        const arrayBuffer = await file.arrayBuffer();
+        draftPdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        draftPdfPage = 1;
+        draftPdfTotal = draftPdfDoc.numPages || 1;
+
+        document.getElementById("pdfControls").style.display = draftPdfTotal > 1 ? "grid" : "none";
+        await renderDraftPdfPage();
+
+        showNotice("PDF page loaded. Choose the correct page, then press Create Mud Map.", true);
+      } catch (error) {
+        console.error(error);
+        showNotice("PDF failed to load. Open this app from Safari/Chrome with internet access, or upload a screenshot of the drawing page.");
+      }
+    }
+
+    function ensurePdfJs() {
+      return new Promise((resolve, reject) => {
+        if (window.pdfjsLib) {
+          setPdfWorker();
+          resolve();
+          return;
+        }
+
+        const urls = [
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"
+        ];
+
+        let index = 0;
+
+        function attempt() {
+          if (index >= urls.length) {
+            reject(new Error("PDF.js could not load"));
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = urls[index++];
+          script.onload = () => {
+            if (window.pdfjsLib) {
+              setPdfWorker();
+              resolve();
+            } else {
+              attempt();
+            }
+          };
+          script.onerror = attempt;
+          document.head.appendChild(script);
+        }
+
+        attempt();
+      });
+    }
+
+    function setPdfWorker() {
+      if (!window.pdfjsLib) return;
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+
+    async function renderDraftPdfPage() {
+      if (!draftPdfDoc) return;
+
+      document.getElementById("pdfText").textContent = `Page ${draftPdfPage} / ${draftPdfTotal}`;
+
+      const page = await draftPdfDoc.getPage(draftPdfPage);
+      const initialViewport = page.getViewport({ scale: 1 });
+
+      const targetWidth = 2400;
+      const scale = Math.min(3, targetWidth / initialViewport.width);
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d", { alpha: false });
+
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({ canvasContext: context, viewport }).promise;
+
+      draftImageData = canvas.toDataURL("image/png");
+      draftImageWidth = canvas.width;
+      draftImageHeight = canvas.height;
+
+      showPreview(draftImageData);
+    }
+
+    async function pdfPrev() {
+      if (!draftPdfDoc || draftPdfPage <= 1) return;
+      draftPdfPage -= 1;
+      showNotice(`Rendering page ${draftPdfPage}...`);
+      await renderDraftPdfPage();
+      showNotice("PDF page loaded.", true);
+    }
+
+    async function pdfNext() {
+      if (!draftPdfDoc || draftPdfPage >= draftPdfTotal) return;
+      draftPdfPage += 1;
+      showNotice(`Rendering page ${draftPdfPage}...`);
+      await renderDraftPdfPage();
+      showNotice("PDF page loaded.", true);
+    }
+
+    function showPreview(src) {
+      const box = document.getElementById("previewBox");
+      const img = document.getElementById("previewImg");
+      img.src = src;
+      box.style.display = "block";
+    }
+
+    function showNotice(message, good = false) {
+      const el = document.getElementById("newNotice");
+      el.textContent = message;
+      el.className = "notice" + (good ? " success" : "");
+      el.style.display = "block";
+    }
+
+    function hideNotice() {
+      const el = document.getElementById("newNotice");
+      el.textContent = "";
+      el.style.display = "none";
+    }
+
+
+
+    function markerMatchesFilter(marker) {
+      if (!currentFilterMpa) return true;
+      if (currentFilterMpa === "none") return !marker.mpa;
+      return String(marker.mpa || "") === String(currentFilterMpa);
+    }
+
+    function setMpaFilter(value) {
+      currentFilterMpa = value || "";
+      if (currentJob) currentJob.filterMpa = currentFilterMpa;
+      updateToolbarState();
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+    }
+
+    function getMapLocalPoint(event) {
+      const rect = mapCanvas.getBoundingClientRect();
+      return {
+        x: clamp(event.clientX - rect.left, 0, rect.width),
+        y: clamp(event.clientY - rect.top, 0, rect.height),
+        width: rect.width,
+        height: rect.height
+      };
+    }
+
+    function simplifyStrokePoints(points, minDistance = 4) {
+      if (!points || points.length <= 2) return points || [];
+      const out = [points[0]];
+      let last = points[0];
+      for (let i = 1; i < points.length; i++) {
+        const p = points[i];
+        const d = Math.hypot(p.x - last.x, p.y - last.y);
+        if (d >= minDistance || i === points.length - 1) {
+          out.push(p);
+          last = p;
+        }
+      }
+      return out;
+    }
+
+    function smoothClosedPoints(points, iterations = 2) {
+      let pts = (points || []).map(p => ({ x: p.x, y: p.y }));
+      if (pts.length < 3) return pts;
+      for (let k = 0; k < iterations; k++) {
+        const result = [];
+        for (let i = 0; i < pts.length; i++) {
+          const p0 = pts[i];
+          const p1 = pts[(i + 1) % pts.length];
+          result.push({ x: 0.75 * p0.x + 0.25 * p1.x, y: 0.75 * p0.y + 0.25 * p1.y });
+          result.push({ x: 0.25 * p0.x + 0.75 * p1.x, y: 0.25 * p0.y + 0.75 * p1.y });
+        }
+        pts = result;
+      }
+      return pts;
+    }
+
+    function pointsToSvgPath(points, closePath = true) {
+      if (!points || !points.length) return "";
+      if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+      let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+      for (let i = 0; i < points.length; i++) {
+        const current = points[i];
+        const next = points[(i + 1) % points.length];
+        const midX = (current.x + next.x) / 2;
+        const midY = (current.y + next.y) / 2;
+        d += ` Q ${current.x.toFixed(2)} ${current.y.toFixed(2)} ${midX.toFixed(2)} ${midY.toFixed(2)}`;
+      }
+      if (closePath) d += ' Z';
+      return d;
+    }
+
+    function updateFreeformPreview() {
+      if (!freeformDrawState || !freeformDrawState.points.length) {
+        drawPreviewPath.setAttribute('d', '');
+        return;
+      }
+      const raw = simplifyStrokePoints(freeformDrawState.points, 3);
+      const smooth = smoothClosedPoints(raw, 1);
+      drawPreviewPath.setAttribute('d', pointsToSvgPath(smooth, true));
+    }
+
+    function clearFreeformPreview() {
+      drawPreviewPath.setAttribute('d', '');
+      freeformDrawState = null;
+    }
+
+    function finalizeFreeformSlab() {
+      if (!freeformDrawState || !currentJob) return;
+      const rectInfo = freeformDrawState.rectInfo;
+      let points = simplifyStrokePoints(freeformDrawState.points, 5);
+      if (points.length < 3) {
+        clearFreeformPreview();
+        return;
+      }
+      points = smoothClosedPoints(points, 2);
+      let minX = Math.min(...points.map(p => p.x));
+      let maxX = Math.max(...points.map(p => p.x));
+      let minY = Math.min(...points.map(p => p.y));
+      let maxY = Math.max(...points.map(p => p.y));
+      const pad = 8;
+      minX = Math.max(0, minX - pad);
+      minY = Math.max(0, minY - pad);
+      maxX = Math.min(rectInfo.width, maxX + pad);
+      maxY = Math.min(rectInfo.height, maxY + pad);
+      const w = Math.max(30, maxX - minX);
+      const h = Math.max(30, maxY - minY);
+      const relPoints = points.map(p => ({
+        x: (p.x - minX) / w,
+        y: (p.y - minY) / h
+      }));
+
+      pushHistory();
+      const marker = {
+        id: currentJob.nextTruckId || 1,
+        order: (currentJob.markers || []).length + 1,
+        type: 'slab',
+        freeform: true,
+        pointsRel: relPoints,
+        xPct: ((minX + w / 2) / rectInfo.width) * 100,
+        yPct: ((minY + h / 2) / rectInfo.height) * 100,
+        w,
+        h,
+        rotate: 0,
+        truck: '',
+        timeIn: nowHHMM(),
+        timeOut: '',
+        mpa: currentJob.defaultMpa || '',
+        color: getMpaColor(currentJob.defaultMpa || '', 'slab'),
+        notes: ''
+      };
+      currentJob.nextTruckId = marker.id + 1;
+      currentJob.markers = currentJob.markers || [];
+      currentJob.markers.push(marker);
+      selectedMarkerId = marker.id;
+      clearFreeformPreview();
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+      saveCurrentJob(false);
+      toast(`Truck ${marker.order} added at ${marker.timeIn}`);
+    }
+
+    function startFreeformDraw(event) {
+      if (!currentJob || activeTool !== 'slab') return;
+      if (event.target.closest('.marker')) return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      const p = getMapLocalPoint(event);
+      suppressNextCanvasClick = true;
+      freeformDrawState = {
+        rectInfo: { width: p.width, height: p.height },
+        points: [{ x: p.x, y: p.y }]
+      };
+      try { mapCanvas.setPointerCapture(event.pointerId); } catch (e) {}
+      updateFreeformPreview();
+      event.preventDefault();
+    }
+
+    function moveFreeformDraw(event) {
+      if (!freeformDrawState || activeTool !== 'slab') return;
+      const p = getMapLocalPoint(event);
+      const last = freeformDrawState.points[freeformDrawState.points.length - 1];
+      if (!last || Math.hypot(p.x - last.x, p.y - last.y) >= 3) {
+        freeformDrawState.points.push({ x: p.x, y: p.y });
+        updateFreeformPreview();
+      }
+      event.preventDefault();
+    }
+
+    function endFreeformDraw(event) {
+      if (!freeformDrawState || activeTool !== 'slab') return;
+      const p = getMapLocalPoint(event);
+      const last = freeformDrawState.points[freeformDrawState.points.length - 1];
+      if (!last || Math.hypot(p.x - last.x, p.y - last.y) >= 2) {
+        freeformDrawState.points.push({ x: p.x, y: p.y });
+      }
+      finalizeFreeformSlab();
+      setTimeout(() => { suppressNextCanvasClick = false; }, 0);
+      event.preventDefault();
+    }
+
+    function buildMarkerSvgPattern(marker, markerColor, pathD) {
+      const patternId = `pat_${marker.id}`;
+      const tone = hexToRgba(markerColor, 0.34);
+      let pattern = '';
+      if (marker.type === 'wall') {
+        pattern = `<pattern id="${patternId}" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 1 H8 M0 5 H8" stroke="${tone}" stroke-width="1.2" /></pattern>`;
+      } else if (marker.type === 'column') {
+        pattern = `<pattern id="${patternId}" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.3" fill="${tone}" /></pattern>`;
+      } else {
+        pattern = `<pattern id="${patternId}" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0 V10" stroke="${tone}" stroke-width="1.2" /></pattern>`;
+      }
+      return `<svg viewBox="0 0 ${marker.w} ${marker.h}" preserveAspectRatio="none"><defs>${pattern}</defs><path d="${pathD}" fill="${hexToRgba(markerColor, 0.16)}" stroke="${hexToRgba(markerColor, 0.82)}" stroke-width="1.4" /><path d="${pathD}" fill="url(#${patternId})" stroke="none" /></svg>`;
+    }
+
+    function beginFreeformCanvasPath(ctx, marker, w, h) {
+      const pts = (marker.pointsRel || []).map(p => ({ x: (p.x || 0) * w - w / 2, y: (p.y || 0) * h - h / 2 }));
+      if (!pts.length) return;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 0; i < pts.length; i++) {
+        const current = pts[i];
+        const next = pts[(i + 1) % pts.length];
+        const midX = (current.x + next.x) / 2;
+        const midY = (current.y + next.y) / 2;
+        ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+      }
+      ctx.closePath();
+    }
+
+    function cloneEditorState() {
+      return JSON.parse(JSON.stringify({
+        markers: currentJob?.markers || [],
+        nextTruckId: currentJob?.nextTruckId || 1,
+        defaultMpa: currentJob?.defaultMpa || "",
+        activeTool,
+        selectedMarkerId,
+        zoom: mapZoom,
+        snapToGrid,
+        filterMpa: currentFilterMpa
+      }));
+    }
+
+    function pushHistory() {
+      if (!currentJob) return;
+      historyStack.push(cloneEditorState());
+      if (historyStack.length > 80) historyStack.shift();
+      redoStack = [];
+      updateToolbarState();
+    }
+
+    function restoreEditorState(state) {
+      if (!currentJob || !state) return;
+      currentJob.markers = JSON.parse(JSON.stringify(state.markers || []));
+      currentJob.nextTruckId = state.nextTruckId || 1;
+      currentJob.defaultMpa = state.defaultMpa || "";
+      activeTool = state.activeTool || "slab";
+      selectedMarkerId = state.selectedMarkerId || null;
+      mapZoom = state.zoom || 1;
+      snapToGrid = !!state.snapToGrid;
+      currentFilterMpa = state.filterMpa || "";
+      currentJob.activeTool = activeTool;
+      currentJob.zoom = mapZoom;
+      currentJob.snapToGrid = snapToGrid;
+      syncToolButtons();
+      updateToolbarState();
+      applyZoom(false);
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+    }
+
+    function undoAction() {
+      if (!currentJob || !historyStack.length) {
+        toast("Nothing to undo");
+        return;
+      }
+      redoStack.push(cloneEditorState());
+      const previous = historyStack.pop();
+      restoreEditorState(previous);
+      saveCurrentJob(false);
+    }
+
+    function redoAction() {
+      if (!currentJob || !redoStack.length) {
+        toast("Nothing to redo");
+        return;
+      }
+      historyStack.push(cloneEditorState());
+      const next = redoStack.pop();
+      restoreEditorState(next);
+      saveCurrentJob(false);
+    }
+
+    function snapPct(value) {
+      return Math.round(value / 1) * 1;
+    }
+
+    function toggleSnapGrid() {
+      snapToGrid = !snapToGrid;
+      if (currentJob) currentJob.snapToGrid = snapToGrid;
+      updateToolbarState();
+      saveCurrentJob(false);
+      toast(snapToGrid ? "Snap to grid on" : "Snap to grid off");
+    }
+
+    function applyMpaPreset(value) {
+      if (!currentJob) return;
+      pushHistory();
+      currentJob.defaultMpa = value;
+      if (selectedMarkerId) {
+        const marker = findMarker(selectedMarkerId);
+        if (marker) {
+          marker.mpa = value;
+          marker.color = getMpaColor(value, marker.type);
+        }
+      }
+      updateToolbarState();
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+      toast(selectedMarkerId ? `Selected marker set to ${value || 'No'} MPa` : `Default MPa set to ${value || 'None'}`);
+    }
+
+    function duplicateMarker(id) {
+      const marker = findMarker(id);
+      if (!marker || !currentJob) return;
+      pushHistory();
+      const copy = JSON.parse(JSON.stringify(marker));
+      copy.id = currentJob.nextTruckId || 1;
+      currentJob.nextTruckId = copy.id + 1;
+      copy.order = (currentJob.markers || []).length + 1;
+      copy.xPct = clamp((copy.xPct || 0) + 3, 0, 100);
+      copy.yPct = clamp((copy.yPct || 0) + 3, 0, 100);
+      currentJob.markers.push(copy);
+      selectedMarkerId = copy.id;
+      renumberMarkers();
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+      saveCurrentJob(false);
+      toast("Marker copied");
+    }
+
+    function duplicateSelectedMarker() {
+      if (!selectedMarkerId) {
+        toast("Select a shape first");
+        return;
+      }
+      duplicateMarker(selectedMarkerId);
+    }
+
+    function deleteSelectedMarker() {
+      if (!selectedMarkerId) {
+        toast("Select a shape first");
+        return;
+      }
+      deleteTruck(selectedMarkerId);
+    }
+
+    function syncToolButtons() {
+      ["slab", "wall", "column"].forEach(t => {
+        const btn = document.getElementById("tool-" + t);
+        if (btn) btn.classList.toggle("active", t === activeTool);
+      });
+    }
+
+    function updateToolbarState() {
+      const defaultMpa = currentJob?.defaultMpa || "";
+      const defaultText = document.getElementById("defaultMpaText");
+      if (defaultText) defaultText.textContent = `Default MPa: ${defaultMpa ? defaultMpa + ' MPa' : 'None'}`;
+
+      document.querySelectorAll('[data-mpa-btn]').forEach(btn => {
+        const value = btn.getAttribute('data-mpa-btn') || '';
+        btn.classList.toggle('active', value === defaultMpa);
+      });
+
+      const filterSelect = document.getElementById('filterMpaSelect');
+      if (filterSelect) filterSelect.value = currentFilterMpa || "";
+
+      const snapBtn = document.getElementById('snapBtn');
+      if (snapBtn) {
+        snapBtn.textContent = snapToGrid ? 'Snap On' : 'Snap Off';
+        snapBtn.classList.toggle('active', snapToGrid);
+      }
+
+      const undoBtn = document.getElementById('undoBtn');
+      const redoBtn = document.getElementById('redoBtn');
+      if (undoBtn) undoBtn.disabled = historyStack.length === 0;
+      if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+    }
+
+    async function openJob(id) {
+      try {
+        const job = await dbGet(id);
+        if (!job) {
+          toast("Job not found");
+          return;
+        }
+
+        currentJob = job;
+        activeTool = job.activeTool || "slab";
+        selectedMarkerId = null;
+        snapToGrid = !!job.snapToGrid;
+        currentFilterMpa = job.filterMpa || "";
+        historyStack = [];
+        redoStack = [];
+
+        showScreen("work");
+        renderWork();
+        toast("Mud map opened");
+      } catch (error) {
+        console.error(error);
+        toast("Could not open job");
+      }
+    }
+
+    async function duplicateJob(id) {
+      const job = await dbGet(id);
+      if (!job) return;
+
+      const copy = JSON.parse(JSON.stringify(job));
+      copy.id = uid();
+      copy.name = (copy.name || "Mud Map") + " Copy";
+      copy.createdAt = new Date().toISOString();
+      copy.updatedAt = new Date().toISOString();
+
+      await dbPut(copy);
+      await renderHome();
+      toast("Copied");
+    }
+
+    async function removeJob(id) {
+      if (!confirm("Delete this mud map?")) return;
+      await dbDelete(id);
+      await renderHome();
+      toast("Deleted");
+    }
+
+    function renderWork() {
+      if (!currentJob) return;
+
+      document.getElementById("workTitle").textContent = currentJob.name || "Mud Map";
+      document.getElementById("workSub").textContent = [
+        currentJob.project,
+        currentJob.area,
+        currentJob.date
+      ].filter(Boolean).join(" · ");
+
+      setTool(activeTool);
+
+      if (currentJob.imageData) {
+        mapImg.src = currentJob.imageData;
+        mapImg.style.display = "block";
+        blankPlan.style.display = "none";
+        mapCanvas.style.minHeight = "0";
+      } else {
+        mapImg.removeAttribute("src");
+        mapImg.style.display = "none";
+        blankPlan.style.display = "flex";
+        blankPlan.textContent = "Blank mud map. Tap to add trucks.";
+        mapCanvas.style.minHeight = "380px";
+      }
+
+      applyCanvasDisplaySize(currentJob);
+      updateToolbarState();
+
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+    }
+
+    function setTool(tool) {
+      activeTool = tool;
+      if (currentJob) currentJob.activeTool = tool;
+      syncToolButtons();
+      updateToolbarState();
+      if (currentJob) saveCurrentJob(false);
+    }
+
+    mapCanvas.addEventListener("click", event => {
+      if (!currentJob) return;
+      if (event.target.closest(".marker")) return;
+      if (suppressNextCanvasClick) {
+        suppressNextCanvasClick = false;
+        return;
+      }
+      if (activeTool === 'slab') return;
+
+      const rect = mapCanvas.getBoundingClientRect();
+      const xPct = ((event.clientX - rect.left) / rect.width) * 100;
+      const yPct = ((event.clientY - rect.top) / rect.height) * 100;
+
+      if (xPct < 0 || xPct > 100 || yPct < 0 || yPct > 100) return;
+
+      addTruck(xPct, yPct);
+    });
+
+    mapCanvas.addEventListener('pointerdown', startFreeformDraw);
+    mapCanvas.addEventListener('pointermove', moveFreeformDraw);
+    mapCanvas.addEventListener('pointerup', endFreeformDraw);
+    mapCanvas.addEventListener('pointercancel', clearFreeformPreview);
+
+    function addTruck(xPct, yPct) {
+      const shape = SHAPES[activeTool];
+      pushHistory();
+      if (snapToGrid) {
+        xPct = snapPct(xPct);
+        yPct = snapPct(yPct);
+      }
+
+      const marker = {
+        id: currentJob.nextTruckId || 1,
+        order: (currentJob.markers || []).length + 1,
+        type: activeTool,
+        xPct,
+        yPct,
+        w: shape.w,
+        h: shape.h,
+        rotate: shape.rotate,
+        truck: "",
+        timeIn: nowHHMM(),
+        timeOut: "",
+        mpa: currentJob.defaultMpa || "",
+        color: getMpaColor(currentJob.defaultMpa || "", activeTool),
+        notes: ""
+      };
+
+      currentJob.nextTruckId = marker.id + 1;
+      currentJob.markers = currentJob.markers || [];
+      currentJob.markers.push(marker);
+      selectedMarkerId = marker.id;
+
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+      saveCurrentJob(false);
+      toast(`Truck ${marker.order} added at ${marker.timeIn}`);
+    }
+
+    function renderMarkers() {
+      document.querySelectorAll("#mapCanvas .marker").forEach(el => el.remove());
+
+      if (!currentJob) return;
+
+      (currentJob.markers || []).filter(markerMatchesFilter).forEach(marker => {
+        const el = document.createElement("div");
+        el.className = `marker shape-${marker.type}` + (marker.id === selectedMarkerId ? " selected" : "") + (marker.freeform ? ' freeform-marker' : '');
+        el.dataset.id = marker.id;
+        el.style.left = marker.xPct + "%";
+        el.style.top = marker.yPct + "%";
+        el.style.width = marker.w + "px";
+        el.style.height = marker.h + "px";
+        el.style.transform = `translate(-50%, -50%) rotate(${marker.rotate || 0}deg)`;
+
+        const markerColor = getMarkerColor(marker);
+        const showTruck = Math.max(marker.w, marker.h) >= 55;
+        const showMpa = Math.max(marker.w, marker.h) >= 90;
+        const labelHtml = `<div class="marker-label-overlay"><div class="marker-inner" style="transform: rotate(${-(marker.rotate || 0)}deg)"><div class="marker-order">${marker.order}</div>${showTruck ? `<div class="marker-truck">${marker.truck ? "T-" + escapeHtml(marker.truck) : "Truck"}</div>` : ""}${showMpa ? `<div class="marker-mpa">${marker.mpa ? escapeHtml(marker.mpa) + " MPa" : ""}</div>` : ""}</div></div>`;
+
+        if (marker.freeform && marker.pointsRel && marker.pointsRel.length) {
+          const absPoints = marker.pointsRel.map(p => ({ x: (p.x || 0) * marker.w, y: (p.y || 0) * marker.h }));
+          const pathD = pointsToSvgPath(absPoints, true);
+          el.innerHTML = buildMarkerSvgPattern(marker, markerColor, pathD) + labelHtml;
+        } else {
+          const texture = getTextureStyle(marker.type, markerColor);
+          el.style.backgroundColor = hexToRgba(markerColor, 0.16);
+          el.style.borderColor = hexToRgba(markerColor, 0.8);
+          el.style.backgroundImage = texture.image;
+          el.style.backgroundSize = texture.size;
+          el.innerHTML = labelHtml;
+        }
+
+        el.addEventListener("click", event => {
+          event.stopPropagation();
+          selectedMarkerId = marker.id;
+          renderMarkers();
+          renderTruckCards();
+        });
+
+        el.addEventListener("pointerdown", startDrag);
+        mapCanvas.appendChild(el);
+      });
+    }
+
+    function renderTruckCards() {
+      const container = document.getElementById("truckCards");
+
+      if (!currentJob || !currentJob.markers || currentJob.markers.length === 0) {
+        container.innerHTML = `<div class="empty-state">No trucks yet.<br>${activeTool === 'slab' ? 'Draw a slab shape on the drawing to add Truck 1.' : 'Tap the drawing to add Truck 1.'}</div>`;
+        return;
+      }
+
+      const visibleMarkers = currentJob.markers.filter(markerMatchesFilter);
+      if (!visibleMarkers.length) {
+        container.innerHTML = `<div class="empty-state">No trucks match the current MPa filter.</div>`;
+        return;
+      }
+
+      container.innerHTML = visibleMarkers.map(marker => {
+        const status = marker.timeOut ? `Left ${marker.timeOut}` : `On site since ${marker.timeIn}`;
+        return `
+          <div class="truck-card ${marker.id === selectedMarkerId ? "selected" : ""}" onclick="selectMarker(${marker.id})">
+            <div class="truck-title">
+              <div class="truck-left">
+                <div class="badge">${marker.order}</div>
+                <div>
+                  <div class="truck-type">${SHAPES[marker.type]?.name || marker.type}</div>
+                  <div class="truck-status">${escapeHtml(status)}</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="blue" onclick="event.stopPropagation(); duplicateMarker(${marker.id})">Copy</button>
+                <button class="orange" onclick="event.stopPropagation(); cycleType(${marker.id})">Type</button>
+                <button class="red" onclick="event.stopPropagation(); deleteTruck(${marker.id})">Delete</button>
+              </div>
+            </div>
+
+            <div class="truck-fields">
+              <div class="field full">
+                <label>Truck number</label>
+                <input value="${escapeHtml(marker.truck || "")}" placeholder="e.g. 43" onclick="event.stopPropagation()" oninput="editMarker(${marker.id}, 'truck', this.value)" />
+              </div>
+
+              <button class="left-btn ${marker.timeOut ? "blue" : "green"}" onclick="event.stopPropagation(); stampLeft(${marker.id})">
+                ${marker.timeOut ? "Update LEFT Time" : "LEFT"}
+              </button>
+
+              <div class="field">
+                <label>Time in</label>
+                <input type="time" value="${escapeHtml(marker.timeIn || "")}" onclick="event.stopPropagation()" oninput="editMarker(${marker.id}, 'timeIn', this.value, true)" />
+              </div>
+
+              <div class="field">
+                <label>Time out</label>
+                <input type="time" value="${escapeHtml(marker.timeOut || "")}" onclick="event.stopPropagation()" oninput="editMarker(${marker.id}, 'timeOut', this.value, true)" />
+              </div>
+
+              <div class="field">
+                <label>MPa</label>
+                <select onclick="event.stopPropagation()" onchange="editMarker(${marker.id}, 'mpa', this.value, true)">
+                  ${mpaOptions(marker.mpa)}
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Colour</label>
+                <div class="color-row">
+                  <input type="color" value="${escapeHtml(normalizeHex(getMarkerColor(marker)))}" onclick="event.stopPropagation()" oninput="setMarkerColor(${marker.id}, this.value)" />
+                  <button class="blue" onclick="event.stopPropagation(); resetMarkerColor(${marker.id})">Auto</button>
+                </div>
+              </div>
+
+              <div class="field full notes-field">
+                <label>Notes / comments</label>
+                <textarea placeholder="Add notes here" onclick="event.stopPropagation()" oninput="editMarker(${marker.id}, 'notes', this.value, true)">${escapeHtml(marker.notes || "")}</textarea>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectMarker(id) {
+      selectedMarkerId = id;
+      renderMarkers();
+      renderTruckCards();
+    }
+
+    function editMarker(id, field, value, rerender = false) {
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+
+      if (field === "mpa") {
+        marker[field] = value;
+        marker.color = getMpaColor(value, marker.type);
+        rerender = true;
+      } else {
+        marker[field] = value;
+      }
+
+      renderMarkers();
+      if (rerender) renderTruckCards();
+      saveCurrentJob(false);
+    }
+
+    function setMarkerColor(id, value) {
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+      marker.color = normalizeHex(value);
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+    }
+
+    function resetMarkerColor(id) {
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+      marker.color = getMpaColor(marker.mpa, marker.type);
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+    }
+
+    function stampLeft(id) {
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+
+      marker.timeOut = nowHHMM();
+      selectedMarkerId = id;
+
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+      toast(`Truck ${marker.order} left at ${marker.timeOut}`);
+    }
+
+    function cycleType(id) {
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+
+      const types = ["slab", "wall", "column"];
+      const nextType = types[(types.indexOf(marker.type) + 1) % types.length];
+      const shape = SHAPES[nextType];
+
+      marker.type = nextType;
+      marker.w = shape.w;
+      marker.h = shape.h;
+      marker.rotate = shape.rotate;
+      if (nextType !== 'slab') {
+        marker.freeform = false;
+        delete marker.pointsRel;
+      }
+
+      selectedMarkerId = id;
+      renderMarkers();
+      renderTruckCards();
+      saveCurrentJob(false);
+    }
+
+    function mpaOptions(selected) {
+      const values = ["", "20", "25", "32", "40", "50", "65", "80"];
+      return values.map(v => {
+        const label = v ? `${v} MPa` : "Select MPa";
+        return `<option value="${v}" ${String(v) === String(selected || "") ? "selected" : ""}>${label}</option>`;
+      }).join("");
+    }
+
+    function startDrag(event) {
+      const el = event.currentTarget;
+      const id = Number(el.dataset.id);
+      const marker = findMarker(id);
+      if (!marker) return;
+      pushHistory();
+
+      selectedMarkerId = id;
+      dragState = { id };
+      el.setPointerCapture(event.pointerId);
+
+      el.addEventListener("pointermove", dragMove);
+      el.addEventListener("pointerup", dragEnd);
+      el.addEventListener("pointercancel", dragEnd);
+
+      renderMarkers();
+      renderTruckCards();
+      event.stopPropagation();
+    }
+
+    function dragMove(event) {
+      if (!dragState) return;
+
+      const marker = findMarker(dragState.id);
+      if (!marker) return;
+
+      const rect = mapCanvas.getBoundingClientRect();
+      let xPct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+      let yPct = clamp(((event.clientY - rect.top) / rect.height) * 100, 0, 100);
+      if (snapToGrid) {
+        xPct = snapPct(xPct);
+        yPct = snapPct(yPct);
+      }
+      marker.xPct = xPct;
+      marker.yPct = yPct;
+
+      renderMarkers();
+    }
+
+    function dragEnd() {
+      dragState = null;
+      saveCurrentJob(false);
+    }
+
+    function rotateSelected() {
+      const marker = findMarker(selectedMarkerId);
+      if (!marker) {
+        toast("Select a shape first");
+        return;
+      }
+      pushHistory();
+
+      marker.rotate = ((marker.rotate || 0) + 90) % 360;
+      renderMarkers();
+      saveCurrentJob(false);
+    }
+
+    function resizeSelected(multiplier) {
+      const marker = findMarker(selectedMarkerId);
+      if (!marker) {
+        toast("Select a shape first");
+        return;
+      }
+      pushHistory();
+
+      marker.w = Math.max(18, Math.round((marker.w || 60) * multiplier));
+      marker.h = Math.max(24, Math.round((marker.h || 60) * multiplier));
+
+      renderMarkers();
+      saveCurrentJob(false);
+    }
+
+    function undoTruck() {
+      undoAction();
+    }
+
+    function deleteTruck(id) {
+      if (!currentJob) return;
+      pushHistory();
+
+      currentJob.markers = (currentJob.markers || []).filter(m => m.id !== id);
+      selectedMarkerId = currentJob.markers.length ? currentJob.markers[currentJob.markers.length - 1].id : null;
+      renumberMarkers();
+
+      renderMarkers();
+      renderTruckCards();
+      updateCount();
+      saveCurrentJob(false);
+    }
+
+    function renumberMarkers() {
+      if (!currentJob || !currentJob.markers) return;
+      currentJob.markers.forEach((m, i) => m.order = i + 1);
+    }
+
+    function updateCount() {
+      const count = currentJob?.markers?.length || 0;
+      const visibleCount = (currentJob?.markers || []).filter(markerMatchesFilter).length;
+      const modeText = activeTool === 'slab' ? 'Draw slab shape' : 'Tap drawing to add truck';
+      document.getElementById("truckCount").textContent = `${visibleCount}${currentFilterMpa ? '/' + count : ''} truck${visibleCount === 1 ? "" : "s"}`;
+      const head = document.querySelector('.map-head strong');
+      if (head) head.textContent = activeTool === 'slab' ? 'Draw slab shape on the drawing' : 'Tap drawing to add truck';
+    }
+
+    function findMarker(id) {
+      if (!currentJob || !currentJob.markers) return null;
+      return currentJob.markers.find(m => Number(m.id) === Number(id));
+    }
+
+    async function saveCurrentJob(show = false) {
+      if (!currentJob) return;
+
+      currentJob.activeTool = activeTool;
+      currentJob.zoom = mapZoom;
+      currentJob.snapToGrid = snapToGrid;
+      currentJob.filterMpa = currentFilterMpa;
+      currentJob.updatedAt = new Date().toISOString();
+
+      try {
+        await dbPut(currentJob);
+        if (show) toast("Saved");
+      } catch (error) {
+        console.error(error);
+        toast("Save failed. Try exporting a backup.");
+      }
+    }
+
+    function exportCSV() {
+      if (!currentJob) return;
+
+      const headers = ["Order", "Area Type", "Truck Number", "Time In", "Time Out", "MPa", "Notes", "Project", "Date", "Pour Area", "Supplier", "Drawing Type", "PDF Page"];
+      const rows = (currentJob.markers || []).map(m => [
+        m.order,
+        SHAPES[m.type]?.name || m.type,
+        m.truck || "",
+        m.timeIn || "",
+        m.timeOut || "",
+        m.mpa ? `${m.mpa} MPa` : "",
+        m.notes || "",
+        currentJob.project || "",
+        currentJob.date || "",
+        currentJob.area || "",
+        currentJob.supplier || "",
+        currentJob.sourceType || "",
+        currentJob.sourceType === "pdf" ? currentJob.pdfPage || "" : ""
+      ]);
+
+      const csv = [headers, ...rows].map(row => row.map(csvEscape).join(",")).join("\n");
+      downloadBlob(csv, makeFileName("truck_register", "csv"), "text/csv");
+      toast("CSV exported");
+    }
+
+    function exportMarkedImage() {
+      if (!currentJob) return;
+
+      const canvas = document.createElement("canvas");
+      const width = currentJob.imageWidth || 1200;
+      const height = currentJob.imageHeight || 800;
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d", { alpha: false });
+
+      if (currentJob.imageData) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, width, height);
+          drawMarkersOnCanvas(ctx, width, height);
+          canvas.toBlob(blob => {
+            downloadBlob(blob, makeFileName("marked_mud_map", "png"), "image/png");
+            toast("Marked map exported");
+          });
+        };
+        img.src = currentJob.imageData;
+      } else {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = "#e5e7eb";
+        for (let x = 0; x < width; x += 50) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+        }
+        for (let y = 0; y < height; y += 50) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+        }
+        drawMarkersOnCanvas(ctx, width, height);
+        canvas.toBlob(blob => {
+          downloadBlob(blob, makeFileName("marked_mud_map", "png"), "image/png");
+          toast("Marked map exported");
+        });
+      }
+    }
+
+    function drawTextureOnCanvas(ctx, type, color, w, h, scale) {
+      ctx.save();
+      ctx.clip();
+      ctx.strokeStyle = hexToRgba(color, 0.34);
+      ctx.fillStyle = hexToRgba(color, 0.34);
+      ctx.lineWidth = Math.max(0.8, 0.9 * scale);
+
+      if (type === "wall") {
+        const gap = Math.max(7, 7 * scale);
+        for (let y = -h / 2; y <= h / 2; y += gap) {
+          ctx.beginPath();
+          ctx.moveTo(-w / 2, y);
+          ctx.lineTo(w / 2, y);
+          ctx.stroke();
+        }
+      } else if (type === "column") {
+        const gap = Math.max(8, 8 * scale);
+        const r = Math.max(1.1, 1.1 * scale);
+        for (let x = -w / 2 + gap / 2; x < w / 2; x += gap) {
+          for (let y = -h / 2 + gap / 2; y < h / 2; y += gap) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else {
+        const gap = Math.max(8, 8 * scale);
+        for (let i = -h - w; i < w + h; i += gap) {
+          ctx.beginPath();
+          ctx.moveTo(-w + i, -h);
+          ctx.lineTo(i, h);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawMarkersOnCanvas(ctx, width, height) {
+      const displayWidth = mapCanvas.getBoundingClientRect().width || 390;
+      const scale = width / displayWidth;
+
+      (currentJob.markers || []).forEach(m => {
+        const x = (m.xPct / 100) * width;
+        const y = (m.yPct / 100) * height;
+        const w = (m.w || 60) * scale;
+        const h = (m.h || 60) * scale;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate((m.rotate || 0) * Math.PI / 180);
+
+        const markerColor = getMarkerColor(m);
+
+        ctx.fillStyle = hexToRgba(markerColor, 0.18);
+        ctx.strokeStyle = hexToRgba(markerColor, 0.82);
+        ctx.lineWidth = Math.max(1.2, 1.1 * scale);
+
+        if (m.freeform && m.pointsRel && m.pointsRel.length) {
+          beginFreeformCanvasPath(ctx, m, w, h);
+          ctx.fill();
+          drawTextureOnCanvas(ctx, m.type, markerColor, w, h, scale);
+          beginFreeformCanvasPath(ctx, m, w, h);
+          ctx.stroke();
+        } else {
+          roundedRect(ctx, -w / 2, -h / 2, w, h, 10 * scale, false);
+          ctx.fill();
+          drawTextureOnCanvas(ctx, m.type, markerColor, w, h, scale);
+          roundedRect(ctx, -w / 2, -h / 2, w, h, 10 * scale, false);
+          ctx.stroke();
+        }
+
+        ctx.rotate(-(m.rotate || 0) * Math.PI / 180);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#111827";
+        ctx.font = `900 ${Math.max(18, 17 * scale)}px Arial`;
+        ctx.fillText(String(m.order), 0, -10 * scale);
+
+        ctx.font = `800 ${Math.max(13, 12 * scale)}px Arial`;
+        ctx.fillText(m.truck ? `T-${m.truck}` : "Truck", 0, 8 * scale);
+
+        if (m.mpa) {
+          ctx.fillStyle = "#374151";
+          ctx.font = `700 ${Math.max(11, 10 * scale)}px Arial`;
+          ctx.fillText(`${m.mpa} MPa`, 0, 24 * scale);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function roundedRect(ctx, x, y, w, h, r, dashed) {
+      ctx.beginPath();
+      ctx.setLineDash(dashed ? [10, 7] : []);
+      r = Math.min(r, w / 2, h / 2);
+
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      ctx.setLineDash([]);
+    }
+
+    function openPrintableTable() {
+      if (!currentJob) return;
+
+      const rows = (currentJob.markers || []).map(m => `
+        <tr>
+          <td>${m.order}</td>
+          <td>${escapeHtml(SHAPES[m.type]?.name || m.type)}</td>
+          <td>${escapeHtml(m.truck || "")}</td>
+          <td>${escapeHtml(m.timeIn || "")}</td>
+          <td>${escapeHtml(m.timeOut || "")}</td>
+          <td>${m.mpa ? escapeHtml(m.mpa) + " MPa" : ""}</td>
+          <td>${escapeHtml(m.notes || "")}</td>
+        </tr>
+      `).join("");
+
+      const win = window.open("", "_blank");
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Concrete Truck Register</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <style>
+              body { font-family: Arial, Helvetica, sans-serif; color: #111827; padding: 22px; }
+              h1 { margin: 0 0 12px; }
+              .meta { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; margin-bottom: 18px; font-size: 14px; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { border: 1px solid #111827; padding: 8px; text-align: left; font-size: 13px; }
+              th { background: #f3f4f6; }
+              button { background: #111827; color: white; border: 0; border-radius: 8px; padding: 10px 14px; font-weight: bold; margin-bottom: 18px; }
+              @media print { button { display:none; } body { padding:0; } }
+            </style>
+          </head>
+          <body>
+            <button onclick="window.print()">Print / Save as PDF</button>
+            <h1>Concrete Truck Register</h1>
+            <div class="meta">
+              <strong>Job:</strong><span>${escapeHtml(currentJob.name || "")}</span>
+              <strong>Project:</strong><span>${escapeHtml(currentJob.project || "")}</span>
+              <strong>Date:</strong><span>${escapeHtml(currentJob.date || "")}</span>
+              <strong>Area:</strong><span>${escapeHtml(currentJob.area || "")}</span>
+              <strong>Supplier:</strong><span>${escapeHtml(currentJob.supplier || "")}</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Type</th>
+                  <th>Truck</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
+                  <th>MPa</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>${rows || `<tr><td colspan="7">No trucks recorded.</td></tr>`}</tbody>
+            </table>
+          </body>
+        </html>
+      `);
+      win.document.close();
+    }
+
+    function exportBackup() {
+      if (!currentJob) return;
+      const json = JSON.stringify(currentJob, null, 2);
+      downloadBlob(json, makeFileName("mud_map_backup", "json"), "application/json");
+      toast("Backup exported");
+    }
+
+    document.getElementById("backupInput").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          imported.id = uid();
+          imported.name = (imported.name || "Imported Mud Map") + " Imported";
+          imported.createdAt = new Date().toISOString();
+          imported.updatedAt = new Date().toISOString();
+
+          await dbPut(imported);
+          await renderHome();
+          toast("Backup imported");
+        } catch (error) {
+          console.error(error);
+          toast("Import failed");
+        }
+      };
+
+      reader.readAsText(file);
+      event.target.value = "";
+    });
+
+    function makeFileName(prefix, ext) {
+      const date = currentJob?.date || todayISO();
+      const area = (currentJob?.area || currentJob?.name || "mud_map").replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "");
+      return `${prefix}_${area}_${date}.${ext}`;
+    }
+
+    function val(id) {
+      return document.getElementById(id).value || "";
+    }
+
+    function csvEscape(value) {
+      const str = String(value ?? "");
+      if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function downloadBlob(content, filename, type) {
+      const blob = content instanceof Blob ? content : new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    mapScroll.addEventListener("touchstart", event => {
+      if (event.touches.length === 2) {
+        const [a, b] = event.touches;
+        pinchState = {
+          startDistance: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY),
+          startZoom: mapZoom
+        };
+      }
+    }, { passive: true });
+
+    mapScroll.addEventListener("touchmove", event => {
+      if (event.touches.length === 2 && pinchState) {
+        event.preventDefault();
+        const [a, b] = event.touches;
+        const distance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+        const rawZoom = pinchState.startZoom * (distance / Math.max(pinchState.startDistance, 1));
+        const oldZoom = mapZoom;
+        mapZoom = clamp(rawZoom, 0.6, 3);
+        if (Math.abs(mapZoom - oldZoom) > 0.001) {
+          applyZoom(true, { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 }, oldZoom);
+          if (currentJob) saveCurrentJob(false);
+        }
+      }
+    }, { passive: false });
+
+    mapScroll.addEventListener("touchend", event => {
+      if (event.touches.length < 2) pinchState = null;
+    });
+
+    mapScroll.addEventListener("touchcancel", () => {
+      pinchState = null;
+    });
+
+    window.addEventListener("resize", () => {
+      if (currentJob) applyCanvasDisplaySize(currentJob);
+    });
+
+    async function boot() {
+      try {
+        await initDB();
+        document.getElementById("newDate").value = todayISO();
+        await renderHome();
+      } catch (error) {
+        console.error(error);
+        document.getElementById("jobList").innerHTML = `<div class="empty-state">Storage could not start in this browser. Try opening in Safari/Chrome as a normal webpage.</div>`;
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
